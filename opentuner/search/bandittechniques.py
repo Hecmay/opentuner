@@ -260,21 +260,26 @@ class AUCBanditMutationTechnique(SearchTechnique):
     else:
       return self.manipulator.random()
 
+import os, glob
+num = glob.glob('sub-db-*.db')[0].replace('.db', '').split('-')[-1]
+fileName = os.path.join(os.getcwd(), glob.glob('sub-db-*.db')[0])
 
 from . import evolutionarytechniques
 from . import differentialevolution
 from . import simplextechniques
 from . import patternsearch
+from . import resumehistory
 from . import simulatedannealing
 from .pso import PSO, HybridParticle
 from . import globalGA
 register(AUCBanditMutationTechnique())
 
 register(AUCBanditMetaTechnique([
-        differentialevolution.DifferentialEvolutionAlt(),
-        evolutionarytechniques.UniformGreedyMutation(),
-        evolutionarytechniques.NormalGreedyMutation(mutation_rate=0.3),
-        simplextechniques.RandomNelderMead(),
+        #differentialevolution.DifferentialEvolutionAlt(),
+        #evolutionarytechniques.UniformGreedyMutation(),
+        #evolutionarytechniques.NormalGreedyMutation(mutation_rate=0.3),
+        #simplextechniques.RandomNelderMead(),
+        resumehistory.BasicHistoryRead(num, fileName),
       ], name = "AUCBanditMetaTechniqueA"))
 register(AUCBanditMetaTechnique([
         differentialevolution.DifferentialEvolutionAlt(),
