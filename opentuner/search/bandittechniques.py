@@ -273,8 +273,11 @@ class AUCBanditMutationTechnique(SearchTechnique):
       return self.manipulator.random()
 
 import os, glob
-num = glob.glob('sub-db-*.db')[0].replace('.db', '').split('-')[-1]
-fileName = os.path.join(os.getcwd(), glob.glob('sub-db-*.db')[0])
+try:
+  num = glob.glob('sub-db-*.db')[0].replace('.db', '').split('-')[-1]
+  fileName = os.path.join(os.getcwd(), glob.glob('sub-db-*.db')[0])
+except:
+  num, fileName = 0, None
 
 from . import evolutionarytechniques
 from . import differentialevolution
