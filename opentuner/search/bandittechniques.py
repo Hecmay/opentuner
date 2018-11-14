@@ -51,10 +51,16 @@ class BanditQueue(object):
     return (self.exploitation_term(key) +
             self.C * self.exploration_term(key))
 
-  def ordered_keys(self):
-    """select the next technique to use"""
+  def ordered_keys(self, read=False):
+    """select the next technique to use
+       default remove the BasicHistoryRead technique
+    """
+    if read == False:
+      keys = list(self.keys)
+      keys.remove('BasicHistoryRead')
+    else:
+      keys = list(['BasicHistoryRead'])
 
-    keys = list(self.keys)
     random.shuffle(keys)  # break ties randomly
     keys.sort(key=self.bandit_score)
 
@@ -148,16 +154,22 @@ class AUCBanditQueue(BanditQueue):
 
 
 class AUCBanditMetaTechnique(MetaSearchTechnique):
-  def __init__(self, techniques, bandit_kwargs=dict(), **kwargs):
+  def __init__(self, techniques, bandit_kwargs=dict(), limit=0, **kwargs):
     super(AUCBanditMetaTechnique, self).__init__(techniques, **kwargs)
     self.bandit = AUCBanditQueue([t.name for t in techniques], **bandit_kwargs)
     self.name_to_technique = dict(((t.name, t) for t in self.techniques))
+    self.limit = limit # the bias to read history algo removed from #limit interation
+    self.counter = 0
 
   def select_technique_order(self):
     """select the next technique to use"""
-    return (self.name_to_technique[k] for k in self.bandit.ordered_keys())
+    self.counter += 1
+    if self.counter  < 2 * self.limit + 1: read = True
+    else: read = False
+    return (self.name_to_technique[k] for k in self.bandit.ordered_keys(read = read))
 
   def on_technique_result(self, technique, result):
+    """push the result into history deque """
     self.bandit.on_result(technique.name, result.was_new_best)
 
   def on_technique_no_desired_result(self, technique):
@@ -275,12 +287,12 @@ from . import globalGA
 register(AUCBanditMutationTechnique())
 
 register(AUCBanditMetaTechnique([
-        #differentialevolution.DifferentialEvolutionAlt(),
-        #evolutionarytechniques.UniformGreedyMutation(),
-        #evolutionarytechniques.NormalGreedyMutation(mutation_rate=0.3),
-        #simplextechniques.RandomNelderMead(),
+        differentialevolution.DifferentialEvolutionAlt(),
+        evolutionarytechniques.UniformGreedyMutation(),
+        evolutionarytechniques.NormalGreedyMutation(mutation_rate=0.3),
+        simplextechniques.RandomNelderMead(),
         resumehistory.BasicHistoryRead(num, fileName),
-      ], name = "AUCBanditMetaTechniqueA"))
+      ], limit = int(num), name = "AUCBanditMetaTechniqueA"))
 register(AUCBanditMetaTechnique([
         differentialevolution.DifferentialEvolutionAlt(),
         evolutionarytechniques.UniformGreedyMutation(),

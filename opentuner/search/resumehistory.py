@@ -23,13 +23,19 @@ class BasicHistoryRead(technique.SequentialSearchTechnique):
     c.execute("SELECT * FROM res")
 
     data = c.fetchall()
+    names = list(map(lambda x: x[0], c.description))
     center = manipulator.random()
 
-    for item in data:
+    for row in data:
       for index, key in enumerate(center):
-        center[key] = item[index]
-      yield driver.get_configuration(manipulator.random())
+        idx = names.index(key)
+        center[key] = row[idx]
+      yield driver.get_configuration(center)
 
+    # default in random fashion
+    while True:
+      print('[WARNING] random for readHistory')
+      yield driver.get_configuration(manipulator.random())
 
 # read database and history
 import os, glob

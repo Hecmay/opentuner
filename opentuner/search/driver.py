@@ -72,6 +72,7 @@ class SearchDriver(DriverBase):
       # generate a bandit
       self.root_technique = AUCBanditMetaTechnique.generate_technique(manipulator)
     else:
+      # AUCBanditMetaTechniqueA in default
       self.root_technique = copy.deepcopy(technique.get_root(self.args))
 
     if isinstance(self.root_technique, AUCBanditMetaTechnique):
@@ -93,6 +94,8 @@ class SearchDriver(DriverBase):
 
     for t in self.plugins:
       t.set_driver(self)
+
+    # plugins get updated with set_driver
     self.root_technique.set_driver(self)
     self.seed_cfgs = list(extra_seeds)
     for cfg_filename in reversed(self.args.seed_configuration):
@@ -121,7 +124,7 @@ class SearchDriver(DriverBase):
       if elapsed > self.args.stop_after:
           return True
     if self.test_count > self.args.test_limit:
-        return True    
+        return True
     if self.extra_criteria:
         if self.extra_criteria(self.new_results):
             return True
