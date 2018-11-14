@@ -38,17 +38,20 @@ class ProgramTuner(ProgramTunerWrapper):
   if os.path.isfile('sweep.p'):
     sweep, genfile = pickle.load(open('sweep.p', 'rb'))
 
-  # read into the cfg-qor in sub-db
-  import glob, sqlite3
-  num = glob.glob('sub-db-*.db')[0].replace('.db', '').split('-')[-1]
-  fileName = os.path.join(os.getcwd(), glob.glob('sub-db-*.db')[0])
+  try:
+    # read into the cfg-qor in sub-db
+    import glob, sqlite3
+    num = glob.glob('sub-db-*.db')[0].replace('.db', '').split('-')[-1]
+    fileName = os.path.join(os.getcwd(), glob.glob('sub-db-*.db')[0])
 
-  # connect and query data in sub-db
-  conn = sqlite3.connect(fileName)
-  cur = conn.cursor()
-  cur.execute("SELECT * FROM res")
-  rows = cur.fetchall()
-  names = list(map(lambda x: x[0], cur.description))
+    # connect and query data in sub-db
+    conn = sqlite3.connect(fileName)
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM res")
+    rows = cur.fetchall()
+    names = list(map(lambda x: x[0], cur.description))
+  except:
+    rows = []
 
   def manipulator(self):
     manipulator = ConfigurationManipulator()

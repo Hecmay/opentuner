@@ -183,7 +183,7 @@ class ProgramTunerWrapper(MeasurementInterface):
             subprocess.Popen(cleanupcmd, shell=True).wait()
             print "Finished " + str(sweepparam)
     elif visited == 1:
-        print 'Same', qor
+        print 'Hit', qor
         result, metadata = float(target_cp) - qor, [99, 78, 123, 90]
         self.dumpresult(cfg, result, metadata)
     else:
