@@ -24,13 +24,26 @@ class BasicHistoryRead(technique.SequentialSearchTechnique):
 
     data = c.fetchall()
     names = list(map(lambda x: x[0], c.description))
-    center = manipulator.random()
+    center = driver.get_configuration(manipulator.random())
 
     for row in data:
-      for index, key in enumerate(center):
-        idx = names.index(key)
-        center[key] = row[idx]
-      yield driver.get_configuration(center)
+      new_cfg = manipulator.copy(center.data)
+      for param in manipulator.parameters(center.data):
+        if param.is_primitive():
+          unit_value = param.get_unit_value(new_cfg.data)
+          # print "unit:", unit_value
+
+        # manipulate complex parameter
+        else:
+          # print "name:", param.name
+          param.set_value(new_cfg, row[names.index(param.name)])
+      yield driver.get_configuration(new_cfg)
+
+    # for row in data:
+    #   for index, key in enumerate(center):
+    #     idx = names.index(key)
+    #     center[key] = row[idx]
+    #   yield driver.get_configuration(center)
 
     # default in random fashion
     while True:
