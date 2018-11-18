@@ -89,6 +89,9 @@ class SimplexTechnique(SequentialSearchTechnique):
     """
     if self.seed_cfg is not None:
       return self.seed_cfg
+    if self.driver.best_result:
+      # print "Return best_cfg as seed"
+      return self.driver.best_result.configuration.data
     return self.manipulator.random()
 
   @abc.abstractmethod

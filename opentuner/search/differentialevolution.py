@@ -53,10 +53,21 @@ class DifferentialEvolution(SearchTechnique):
     return ['population_size', 'cr', 'n_cross', 'information_sharing']
 
   def initial_population(self):
+    """ get the global_best if possible """
     self.population = [PopulationMember(
         self.driver.get_configuration(
             self.manipulator.random()), submitted=False)
-        for z in range(self.population_size)]
+        for z in range(self.population_size - 1)]
+    if self.driver.best_result:
+      # print "best in init of popu"
+      self.population.append(PopulationMember(
+          self.driver.best_result.configuration, submitted=False))
+    else:
+      # print "no best in init of popu"
+      self.population.append(PopulationMember(
+          self.driver.get_configuration(
+              self.manipulator.random()), submitted=False))
+
 
   def oldest_pop_member(self):
     # since tests are run in parallel, exclude things with a replacement pending
